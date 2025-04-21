@@ -1,32 +1,101 @@
-<p>Hi, {{ user.username }}!</p>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Digital Cafe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .welcome {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        .messages li {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #e8f5e9;
+            border-radius: 4px;
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #0066cc;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #0052a3;
+        }
+        .product-link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .product-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <p class="welcome">Hi, {{ user.username }}!</p>
 
-{% if product_data %}
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Price</th>
-        </tr>
-        {% for product_record in product_data %}
+    {% if product_data %}
+        <table>
             <tr>
-                <td><a href="/product/{{ product_record.id }}">{{ product_record.name }}</a></td>
-                <td>{{ product_record.price }}</td>
+                <th>Name</th>
+                <th>Price</th>
             </tr>
-        {% endfor %}
-    </table>
-{% endif %}
+            {% for product_record in product_data %}
+                <tr>
+                    <td><a href="/product/{{ product_record.id }}" class="product-link">{{ product_record.name }}</a></td>
+                    <td>₱{{ product_record.price }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
 
-{% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li{% if messages.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if messages.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
-<br>
-
-<a href="/checkout">Go to check out</a>
-
-<br> <br>
-
-<a href="{% url 'transaction_history' %}">View Transaction History</a>
+    <div class="button-container">
+        <a href="/checkout" class="button">Go to Check Out</a>
+        <a href="{% url 'transaction_history' %}" class="button">View Transaction History</a>
+    </div>
+</body>
+</html>

@@ -66,8 +66,20 @@ def checkout(request):
     if request.method == 'GET':
         template = loader.get_template("core/checkout.html")
         cart_items = CartItem.objects.filter(user=request.user)
+        # Calculate subtotals and total
+        cart_items_with_subtotals = []
+        total_amount = 0
+        for item in cart_items:
+            subtotal = item.quantity * item.product.price
+            total_amount += subtotal
+            cart_items_with_subtotals.append({
+                'product': item.product,
+                'quantity': item.quantity,
+                'subtotal': subtotal
+            })
         context = {
-            'cart_items': list(cart_items),
+            'cart_items': cart_items_with_subtotals,
+            'total_amount': total_amount,
         }
         return HttpResponse(template.render(context, request))
     elif request.method == 'POST':
