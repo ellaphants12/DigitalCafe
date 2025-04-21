@@ -86,3 +86,36 @@ def checkout(request):
             cart_item.delete()
         messages.add_message(request, messages.INFO, f'Thank you for your purchase!')
         return redirect('index')
+
+@login_required
+def transaction_history(request):
+    template = loader.get_template("core/transaction_history.html")
+    # Get all transactions for the current user, ordered by most recent first
+    transactions = Transaction.objects.filter(user=request.user).order_by('-created_at')
+    
+    # For each transaction, get its line items
+    transaction_details = []
+    for transaction in transactions:
+        line_items = LineItem.objects.filter(transaction=transaction)
+        # Calculate subtotals for each line item
+        line_items_with_subtotals = []
+        total = 0
+        for item in line_items:
+            subtotal = item.quantity * item.product.price
+            total += subtotal
+            line_items_with_subtotals.append({
+                'product': item.product,
+                'quantity': item.quantity,
+                'subtotal': subtotal
+            })
+        
+        transaction_details.append({
+            'transaction': transaction,
+            'line_items': line_items_with_subtotals,
+            'total': total
+        })
+    
+    context = {
+        'transaction_details': transaction_details,
+    }
+    return HttpResponse(template.render(context, request))
