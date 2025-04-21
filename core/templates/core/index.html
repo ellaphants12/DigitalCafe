@@ -1,7 +1,14 @@
 {% if product_data %}
-    <ul>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+        </tr>
         {% for product_record in product_data %}
-            <li>{{ product_record.name }} - PHP {{ product_record.price }}</li>
+            <tr>
+                <td><a href="/product/{{ product_record.id }}">{{ product_record.name }}</a></td>
+                <td>{{ product_record.price }}</td>
+            </tr>
         {% endfor %}
-    </ul>
+    </table>
 {% endif %}
