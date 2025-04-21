@@ -1,13 +1,13 @@
 from django.http import HttpResponse
 from django.template import loader
-from .models import Product
-from .models import Product, CartItem
+from .models import Product, CartItem, Transaction, LineItem
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.contrib.auth import (
     login, logout, authenticate
 )
 from django.contrib import messages
+import datetime as dt
 
 @login_required
 def index(request):
@@ -59,4 +59,30 @@ def login_view(request):
             messages.add_message(request, messages.INFO, 'Invalid login.')
             return redirect(request.path_info)
         login(request, user_object)
+        return redirect('index')
+
+@login_required
+def checkout(request):
+    if request.method == 'GET':
+        template = loader.get_template("core/checkout.html")
+        cart_items = CartItem.objects.filter(user=request.user)
+        context = {
+            'cart_items': list(cart_items),
+        }
+        return HttpResponse(template.render(context, request))
+    elif request.method == 'POST':
+        cart_items = CartItem.objects.filter(user=request.user)
+        # Create new transaction
+        created_at = dt.datetime.now(tz=dt.timezone.utc)
+        transaction = Transaction(user=request.user, created_at=created_at)
+        transaction.save()
+        for cart_item in cart_items:
+            line_item = LineItem(
+                transaction=transaction,
+                product=cart_item.product,
+                quantity=cart_item.quantity,
+            )
+            line_item.save()
+            cart_item.delete()
+        messages.add_message(request, messages.INFO, f'Thank you for your purchase!')
         return redirect('index')
